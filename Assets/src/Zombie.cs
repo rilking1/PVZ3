@@ -20,7 +20,13 @@ public class Zombie : MonoBehaviour
         if (transform.position.x < -0.5f)
         {
             Destroy(gameObject);
+            LevelManager.Instance.GameOver();
         }
+        //if (transform.position.x <= 0)
+        //{
+        //    LevelManager.Instance.GameOver();
+        //    Destroy(gameObject);
+        //}
     }
 
 

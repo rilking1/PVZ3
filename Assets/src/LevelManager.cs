@@ -25,6 +25,7 @@ public class LevelManager : MonoBehaviour
     private int currentLevelIndex = 0;
     private int currentWaveIndex = 0;
     private int aliveZombies = 0;
+    private bool isGameOver = false;
     public static LevelManager Instance { get; private set; }
 
     private void Awake()
@@ -45,10 +46,28 @@ public class LevelManager : MonoBehaviour
         aliveZombies--;
     }
 
+    public void StartLevel(int levelIndex)
+    {
+        currentLevelIndex = levelIndex;
+        StopAllCoroutines();
+        StartCoroutine(RunLevel(currentLevelIndex));
+    }
 
     private void Start()
     {
-        StartCoroutine(RunLevel(currentLevelIndex));
+        //StartCoroutine(RunLevel(currentLevelIndex));
+    }
+    public void GameOver()
+    {
+        if (isGameOver) return;
+
+        isGameOver = true;
+        StopAllCoroutines();
+
+        UIManager ui = FindObjectOfType<UIManager>();
+        ui.ShowLoseScreen();
+
+        Debug.Log("Програш!");
     }
 
     private IEnumerator RunLevel(int levelIndex)
@@ -56,6 +75,8 @@ public class LevelManager : MonoBehaviour
         if (levelIndex >= levels.Count)
         {
             Debug.Log("Усі рівні пройдено!");
+            UIManager ui = FindObjectOfType<UIManager>();
+            ui.ShowWinScreen();
             yield break;
         }
 
@@ -75,12 +96,24 @@ public class LevelManager : MonoBehaviour
 
             yield return new WaitUntil(() => aliveZombies == 0);
             yield return new WaitForSeconds(delayBetweenWaves);
-
         }
 
         Debug.Log($"Рівень {levelIndex + 1} завершено!");
 
         currentLevelIndex++;
+
+        // Перевіряємо, чи більше рівнів нема — показуємо перемогу
+        if (currentLevelIndex >= levels.Count)
+        {
+            Debug.Log("Усі рівні пройдено! Перемога!");
+            UIManager ui = FindObjectOfType<UIManager>();
+            ui.ShowWinScreen();
+            yield break;
+        }
+
+        // Інакше запускаємо наступний рівень
         StartCoroutine(RunLevel(currentLevelIndex));
+
     }
+
 }
